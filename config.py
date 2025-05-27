@@ -8,7 +8,6 @@ def get_bots():
         "x1": {"T": "7669060547:AAF1zdVIBcmmFKQGhQ7UGUT8foFKW4EBVxs", "Y": "4100118178122985", "S": "CoqQlgE3E5cTzyAKY1LSiLU1", "CH": -1002640947060, "P": 600.00, "C": c},
         "x2": {"T": "8173622705:AAE88BPX5k1mHuwFFBlWJS8ixxa36EmuCC0", "Y": "4100118178122985", "S": "CoqQlgE3E5cTzyAKY1LSiLU1", "CH": -1002609563244, "P": 3.00, "C": c}
     }
-    # Добавляем ещё 18 ботов с фиктивными данными
     for i in range(3, 21):
         bots[f"x{i}"] = {
             "T": f"123456789{i}:AAFakeToken{i}ForBotX{i}",  # Замени реальным токеном

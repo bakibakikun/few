@@ -8,21 +8,21 @@ from aiogram import Bot, Dispatcher, types
 from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 from aiohttp import web
 import psycopg2.pool
-from config import bots_data
+from config import get_bots
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s %(message)s")
 lg = logging.getLogger(__name__)
 
 DB_URL = "postgresql://postgres.iylthyqzwovudjcyfubg:Alex4382!@aws-0-eu-central-1.pooler.supabase.com:6543/postgres"
-SITE = os.environ.get("SITE", "https://your-bot.onrender.com")
-ENV = "render"
+SITE = os.environ.get("SITE", "https://your-bot.up.railway.app")
+ENV = "railway"
 
 db = psycopg2.pool.SimpleConnectionPool(1, 5, DB_URL)
 
 def setup_db():
     c = db.getconn()
     cr = c.cursor()
-    for k in bots_data():
+    for k in get_bots():
         cr.execute(f"CREATE TABLE IF NOT EXISTS t_{k} (id TEXT PRIMARY KEY, u TEXT, s TEXT, m TEXT)")
     c.commit()
     cr.close()
@@ -31,7 +31,7 @@ def setup_db():
 
 setup_db()
 
-b = {k: Bot(v["T"]) for k, v in bots_data().items()}
+b = {k: Bot(v["T"]) for k, v in get_bots().items()}
 d = {k: Dispatcher(v) for k, v in b.items()}
 
 def get_rates():
@@ -53,13 +53,13 @@ def pay_btns(u):
 for k, dp in d.items():
     async def cmd_s(m: types.Message, k=k):
         u = str(m.from_user.id)
-        cfg = bots_data()[k]
+        cfg = get_bots()[k]
         await b[k].send_message(m.chat.id, f"Оплата {cfg['P']} ₽\nВыберите:", reply_markup=pay_btns(u))
         lg.info(f"{k}: start {u}")
 
     async def y_pay(c: types.CallbackQuery, k=k):
         u = c.data.split("_")[1]
-        cfg = bots_data()[k]
+        cfg = get_bots()[k]
         await b[k].answer_callback_query(c.id)
         i = str(uuid4())
         p = {"quickpay-form": "shop", "paymentType": "AC", "targets": f"Sub {u}", "sum": cfg["P"], "label": i, "receiver": cfg["Y"], "successURL": f"https://t.me/{(await b[k].get_me()).username}"}
@@ -77,7 +77,7 @@ for k, dp in d.items():
 
     async def t_pay(c: types.CallbackQuery, k=k):
         u = c.data.split("_")[1]
-        cfg = bots_data()[k]
+        cfg = get_bots()[k]
         await b[k].answer_callback_query(c.id)
         i = str(uuid4())
         t_r, _, _ = get_rates()
@@ -94,7 +94,7 @@ for k, dp in d.items():
 
     async def b_pay(c: types.CallbackQuery, k=k):
         u = c.data.split("_")[1]
-        cfg = bots_data()[k]
+        cfg = get_bots()[k]
         await b[k].answer_callback_query(c.id)
         i = str(uuid4())
         _, b_r, _ = get_rates()
@@ -111,7 +111,7 @@ for k, dp in d.items():
 
     async def u_pay(c: types.CallbackQuery, k=k):
         u = c.data.split("_")[1]
-        cfg = bots_data()[k]
+        cfg = get_bots()[k]
         await b[k].answer_callback_query(c.id)
         i = str(uuid4())
         _, _, u_r = get_rates()
@@ -137,13 +137,13 @@ async def y_hook(r):
     i = d.get("label")
     if not i:
         return web.Response(status=400)
-    for k in bots_data():
+    for k in get_bots():
         cnx = db.getconn()
         cr = cnx.cursor()
         cr.execute(f"SELECT u FROM t_{k} WHERE id = %s", (i,))
         r = cr.fetchone()
         if r:
-            cfg = bots_data()[k]
+            cfg = get_bots()[k]
             p = [d.get(x, "") for x in ["notification_type", "operation_id", "amount", "currency", "datetime", "sender", "codepro"]] + [cfg["S"], i]
             if hashlib.sha1("&".join(p).encode()).hexdigest() == d.get("sha1_hash"):
                 cr.execute(f"UPDATE t_{k} SET s = %s WHERE id = %s", ("ok", i))
@@ -180,7 +180,7 @@ async def run():
     app = web.Application()
     app.router.add_post("/y", y_hook)
     app.router.add_get("/chk", chk)
-    for k in bots_data():
+    for k in get_bots():
         app.router.add_post(f"/h/{k}", lambda r, k=k: b_hook(r, k))
     port = int(os.environ.get("PORT", 443))
     runner = web.AppRunner(app)

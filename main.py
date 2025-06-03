@@ -104,6 +104,11 @@ def setup_database():
             cursor.execute(
                 f"ALTER TABLE payments_{bot_key} ADD COLUMN IF NOT EXISTS payment_type TEXT"
             )
+        # Новая таблица для языков
+        cursor.execute(
+            "CREATE TABLE IF NOT EXISTS user_languages "
+            "(user_id TEXT PRIMARY KEY, language TEXT NOT NULL)"
+        )
         conn.commit()
         conn.close()
         log.info("База данных настроена")
@@ -113,37 +118,137 @@ def setup_database():
 
 setup_database()
 
-# Кнопки оплаты
-def create_payment_buttons(user_id):
-    keyboard = InlineKeyboardMarkup()
-    keyboard.add(InlineKeyboardButton("ЮMoney", callback_data=f"yoomoney_{user_id}"))
-    keyboard.add(InlineKeyboardButton("TON", callback_data=f"ton_{user_id}"))
-    keyboard.add(InlineKeyboardButton("BTC", callback_data=f"btc_{user_id}"))
-    keyboard.add(InlineKeyboardButton("USDT TRC20", callback_data=f"usdt_{user_id}"))
+# Кнопки выбора языка
+def create_language_buttons():
+    keyboard = InlineKeyboardMarkup(row_width=2)
+    keyboard.add(
+        InlineKeyboardButton("English", callback_data="lang_en"),
+        InlineKeyboardButton("Русский", callback_data="lang_ru"),
+        InlineKeyboardButton("Українська", callback_data="lang_uk"),
+        InlineKeyboardButton("Türkçe", callback_data="lang_tr"),
+        InlineKeyboardButton("हिन्दी", callback_data="lang_hi")
+    )
     return keyboard
+
+# Кнопки оплаты
+def create_payment_buttons(user_id, language):
+    keyboard = InlineKeyboardMarkup()
+    buttons = {
+        "en": [
+            ("YooMoney", f"yoomoney_{user_id}"),
+            ("TON", f"ton_{user_id}"),
+            ("BTC", f"btc_{user_id}"),
+            ("USDT TRC20", f"usdt_{user_id}")
+        ],
+        "ru": [
+            ("ЮMoney", f"yoomoney_{user_id}"),
+            ("TON", f"ton_{user_id}"),
+            ("BTC", f"btc_{user_id}"),
+            ("USDT TRC20", f"usdt_{user_id}")
+        ],
+        "uk": [
+            ("ЮMoney", f"yoomoney_{user_id}"),
+            ("TON", f"ton_{user_id}"),
+            ("BTC", f"btc_{user_id}"),
+            ("USDT TRC20", f"usdt_{user_id}")
+        ],
+        "tr": [
+            ("YooMoney", f"yoomoney_{user_id}"),
+            ("TON", f"ton_{user_id}"),
+            ("BTC", f"btc_{user_id}"),
+            ("USDT TRC20", f"usdt_{user_id}")
+        ],
+        "hi": [
+            ("YooMoney", f"yoomoney_{user_id}"),
+            ("TON", f"ton_{user_id}"),
+            ("BTC", f"btc_{user_id}"),
+            ("USDT TRC20", f"usdt_{user_id}")
+        ]
+    }
+    for text, callback in buttons.get(language, buttons["en"]):
+        keyboard.add(InlineKeyboardButton(text, callback_data=callback))
+    return keyboard
+
+# Получение языка пользователя
+def get_user_language(user_id):
+    try:
+        conn = psycopg2.connect(DB_URL)
+        cursor = conn.cursor()
+        cursor.execute("SELECT language FROM user_languages WHERE user_id = %s", (user_id,))
+        result = cursor.fetchone()
+        conn.close()
+        return result[0] if result else "en"  # По умолчанию английский
+    except Exception as e:
+        log.error(f"Ошибка получения языка: {e}")
+        return "en"
+
+# Сохранение языка пользователя
+def save_user_language(user_id, language):
+    try:
+        conn = psycopg2.connect(DB_URL)
+        cursor = conn.cursor()
+        cursor.execute(
+            "INSERT INTO user_languages (user_id, language) VALUES (%s, %s) "
+            "ON CONFLICT (user_id) DO UPDATE SET language = %s",
+            (user_id, language, language)
+        )
+        conn.commit()
+        conn.close()
+        log.info(f"Язык {language} сохранен для пользователя {user_id}")
+    except Exception as e:
+        log.error(f"Ошибка сохранения языка: {e}")
 
 # Обработчики команд
 for bot_key, dp in dispatchers.items():
     @dp.message_handler(commands=["start"])
-    async def initiate_payment(msg: types.Message, bot_key=bot_key):
+    async def initiate_language_selection(msg: types.Message, bot_key=bot_key):
         try:
             user_id = str(msg.from_user.id)
             chat_id = msg.chat.id
             bot = bot_instances[bot_key]
-            cfg = SETTINGS[bot_key]
             log.info(f"[{bot_key}] Команда /start от пользователя {user_id}")
 
-            keyboard = create_payment_buttons(user_id)
-            welcome_msg = cfg["DESCRIPTION"].format(price=cfg["PRICE"])
+            keyboard = create_language_buttons()
             await bot.send_message(
                 chat_id,
-                f"{welcome_msg}\n\nВыберите способ оплаты для {cfg['PRICE']} RUB:",
+                "Please select your language:\nВыберите язык:\nОберіть мову:\nLütfen dilinizi seçin:\nकृपया अपनी भाषा चुनें:",
                 reply_markup=keyboard
             )
-            log.info(f"[{bot_key}] Отправлены варианты оплаты пользователю {user_id}")
+            log.info(f"[{bot_key}] Отправлен выбор языка пользователю {user_id}")
         except Exception as e:
             log.error(f"[{bot_key}] Ошибка /start: {e}")
-            await bot_instances[bot_key].send_message(chat_id, "Ошибка. Попробуйте снова.")
+            await bot_instances[bot_key].send_message(chat_id, "Error. Try again.")
+
+    @dp.callback_query_handler(lambda c: c.data.startswith("lang_"))
+    async def handle_language_choice(cb: types.CallbackQuery, bot_key=bot_key):
+        try:
+            user_id = str(cb.from_user.id)
+            chat_id = cb.message.chat.id
+            bot = bot_instances[bot_key]
+            cfg = SETTINGS[bot_key]
+            language = cb.data.split("_")[1]
+            await bot.answer_callback_query(cb.id)
+            log.info(f"[{bot_key}] Выбран язык {language} пользователем {user_id}")
+
+            save_user_language(user_id, language)
+            keyboard = create_payment_buttons(user_id, language)
+            welcome_msg = cfg["DESCRIPTION"][language].format(price=cfg["PRICE"])
+            payment_prompt = {
+                "en": f"{welcome_msg}\n\nChoose payment method for {cfg['PRICE']} RUB:",
+                "ru": f"{welcome_msg}\n\nВыберите способ оплаты для {cfg['PRICE']} RUB:",
+                "uk": f"{welcome_msg}\n\nОберіть спосіб оплати для {cfg['PRICE']} RUB:",
+                "tr": f"{welcome_msg}\n\n{cfg['PRICE']} RUB için ödeme yöntemi seçin:",
+                "hi": f"{welcome_msg}\n\n{cfg['PRICE']} RUB के लिए भुगतान विधि चुनें:"
+            }
+            await bot.send_message(
+                chat_id,
+                payment_prompt[language],
+                reply_markup=keyboard
+            )
+            log.info(f"[{bot_key}] Отправлены варианты оплаты на {language} пользователю {user_id}")
+        except Exception as e:
+            log.error(f"[{bot_key}] Ошибка выбора языка: {e}")
+            await bot_instances[bot_key].send_message(chat_id, "Error selecting language. Try again.")
 
     @dp.callback_query_handler(lambda c: c.data.startswith("yoomoney_"))
     async def handle_yoomoney_choice(cb: types.CallbackQuery, bot_key=bot_key):
@@ -152,6 +257,7 @@ for bot_key, dp in dispatchers.items():
             chat_id = cb.message.chat.id
             bot = bot_instances[bot_key]
             cfg = SETTINGS[bot_key]
+            language = get_user_language(user_id)
             await bot.answer_callback_query(cb.id)
             log.info(f"[{bot_key}] Выбран ЮMoney пользователем {user_id}")
 
@@ -159,7 +265,7 @@ for bot_key, dp in dispatchers.items():
             payment_data = {
                 "quickpay-form": "shop",
                 "paymentType": "AC",
-                "targets": f"Подписка пользователя {user_id}",
+                "targets": f"Subscription for user {user_id}",
                 "sum": cfg["PRICE"],
                 "label": payment_id,
                 "receiver": cfg["YOOMONEY_WALLET"],
@@ -179,12 +285,26 @@ for bot_key, dp in dispatchers.items():
             log.info(f"[{bot_key}] Сохранен платеж {payment_id} для пользователя {user_id}")
 
             keyboard = InlineKeyboardMarkup()
-            keyboard.add(InlineKeyboardButton("Оплатить сейчас", url=payment_link))
-            await bot.send_message(chat_id, "Перейдите для оплаты через ЮMoney:", reply_markup=keyboard)
+            button_text = {
+                "en": "Pay now",
+                "ru": "Оплатить сейчас",
+                "uk": "Сплатити зараз",
+                "tr": "Şimdi öde",
+                "hi": "अब भुगतान करें"
+            }
+            keyboard.add(InlineKeyboardButton(button_text[language], url=payment_link))
+            prompt = {
+                "en": "Proceed to payment via YooMoney:",
+                "ru": "Перейдите для оплаты через ЮMoney:",
+                "uk": "Перейдіть до оплати через ЮMoney:",
+                "tr": "YooMoney ile ödemeye geçin:",
+                "hi": "YooMoney के माध्यम से भुगतान के लिए आगे बढ़ें:"
+            }
+            await bot.send_message(chat_id, prompt[language], reply_markup=keyboard)
             log.info(f"[{bot_key}] Ссылка ЮMoney отправлена пользователю {user_id}")
         except Exception as e:
             log.error(f"[{bot_key}] Ошибка ЮMoney: {e}")
-            await bot_instances[bot_key].send_message(chat_id, "Ошибка оплаты. Попробуйте снова.")
+            await bot_instances[bot_key].send_message(chat_id, "Payment error. Try again.")
 
     @dp.callback_query_handler(lambda c: c.data.startswith("ton_"))
     async def handle_ton_choice(cb: types.CallbackQuery, bot_key=bot_key):
@@ -193,6 +313,7 @@ for bot_key, dp in dispatchers.items():
             chat_id = cb.message.chat.id
             bot = bot_instances[bot_key]
             cfg = SETTINGS[bot_key]
+            language = get_user_language(user_id)
             await bot.answer_callback_query(cb.id)
             log.info(f"[{bot_key}] Выбран TON пользователем {user_id}")
 
@@ -221,11 +342,18 @@ for bot_key, dp in dispatchers.items():
             else:
                 await bot.send_message(chat_id, f"{TON_ADDRESS}")
 
-            await bot.send_message(chat_id, f"Оплатите: {amount_ton:.4f} TON")
+            prompt = {
+                "en": f"Pay: {amount_ton:.4f} TON",
+                "ru": f"Оплатите: {amount_ton:.4f} TON",
+                "uk": f"Сплатіть: {amount_ton:.4f} TON",
+                "tr": f"Öde: {amount_ton:.4f} TON",
+                "hi": f"भुगतान करें: {amount_ton:.4f} TON"
+            }
+            await bot.send_message(chat_id, prompt[language])
             log.info(f"[{bot_key}] Отправлен TON адрес и сумма пользователю {user_id}")
         except Exception as e:
             log.error(f"[{bot_key}] Ошибка TON: {e}")
-            await bot_instances[bot_key].send_message(chat_id, "Ошибка оплаты. Попробуйте снова.")
+            await bot_instances[bot_key].send_message(chat_id, "Payment error. Try again.")
 
     @dp.callback_query_handler(lambda c: c.data.startswith("btc_"))
     async def handle_btc_choice(cb: types.CallbackQuery, bot_key=bot_key):
@@ -234,6 +362,7 @@ for bot_key, dp in dispatchers.items():
             chat_id = cb.message.chat.id
             bot = bot_instances[bot_key]
             cfg = SETTINGS[bot_key]
+            language = get_user_language(user_id)
             await bot.answer_callback_query(cb.id)
             log.info(f"[{bot_key}] Выбран BTC пользователем {user_id}")
 
@@ -261,11 +390,18 @@ for bot_key, dp in dispatchers.items():
             else:
                 await bot.send_message(chat_id, f"{BTC_ADDRESS}")
 
-            await bot.send_message(chat_id, f"Оплатите: {amount_btc} BTC")
+            prompt = {
+                "en": f"Pay: {amount_btc} BTC",
+                "ru": f"Оплатите: {amount_btc} BTC",
+                "uk": f"Сплатіть: {amount_btc} BTC",
+                "tr": f"Öde: {amount_btc} BTC",
+                "hi": f"भुगतान करें: {amount_btc} BTC"
+            }
+            await bot.send_message(chat_id, prompt[language])
             log.info(f"[{bot_key}] Отправлен BTC адрес и сумма пользователю {user_id}")
         except Exception as e:
             log.error(f"[{bot_key}] Ошибка BTC: {e}")
-            await bot_instances[bot_key].send_message(chat_id, "Ошибка оплаты. Попробуйте снова.")
+            await bot_instances[bot_key].send_message(chat_id, "Payment error. Try again.")
 
     @dp.callback_query_handler(lambda c: c.data.startswith("usdt_"))
     async def handle_usdt_choice(cb: types.CallbackQuery, bot_key=bot_key):
@@ -274,6 +410,7 @@ for bot_key, dp in dispatchers.items():
             chat_id = cb.message.chat.id
             bot = bot_instances[bot_key]
             cfg = SETTINGS[bot_key]
+            language = get_user_language(user_id)
             await bot.answer_callback_query(cb.id)
             log.info(f"[{bot_key}] Выбран USDT TRC20 пользователем {user_id}")
 
@@ -300,11 +437,18 @@ for bot_key, dp in dispatchers.items():
             else:
                 await bot.send_message(chat_id, f"{USDT_ADDRESS}")
 
-            await bot.send_message(chat_id, f"Оплатите: {amount_usdt:.2f} USDT TRC20")
+            prompt = {
+                "en": f"Pay: {amount_usdt:.2f} USDT TRC20",
+                "ru": f"Оплатите: {amount_usdt:.2f} USDT TRC20",
+                "uk": f"Сплатіть: {amount_usdt:.2f} USDT TRC20",
+                "tr": f"Öde: {amount_usdt:.2f} USDT TRC20",
+                "hi": f"भुगतान करें: {amount_usdt:.2f} USDT TRC20"
+            }
+            await bot.send_message(chat_id, prompt[language])
             log.info(f"[{bot_key}] Отправлен USDT адрес и сумма пользователю {user_id}")
         except Exception as e:
             log.error(f"[{bot_key}] Ошибка USDT: {e}")
-            await bot_instances[bot_key].send_message(chat_id, "Ошибка оплаты. Попробуйте снова.")
+            await bot_instances[bot_key].send_message(chat_id, "Payment error. Try again.")
 
 # Временный обработчик корневого пути
 async def handle_root(req):
@@ -337,6 +481,7 @@ async def generate_channel_invite(bot_key, user_id):
     try:
         cfg = SETTINGS[bot_key]
         bot = bot_instances[bot_key]
+        language = get_user_language(user_id)
         bot_member = await bot.get_chat_member(chat_id=cfg["PRIVATE_CHANNEL_ID"], user_id=(await bot.get_me()).id)
         if not bot_member.can_invite_users:
             log.error(f"[{bot_key}] Нет прав на приглашения")
@@ -388,13 +533,28 @@ async def process_yoomoney_webhook(req):
             result = cursor.fetchone()
             if result:
                 user_id = result[0]
+                language = get_user_language(user_id)
                 cursor.execute(f"UPDATE payments_{bot_key} SET status = %s WHERE label = %s", ("success", payment_id))
                 conn.commit()
                 invite = await generate_channel_invite(bot_key, user_id)
-                if invite:
-                    await bot_instances[bot_key].send_message(user_id, f"Платеж подтвержден! Канал: {invite}")
-                else:
-                    await bot_instances[bot_key].send_message(user_id, "Ошибка приглашения. Свяжитесь с @YourSupportHandle.")
+                success_msg = {
+                    "en": f"Payment confirmed! Channel: {invite}",
+                    "ru": f"Платеж подтвержден! Канал: {invite}",
+                    "uk": f"Платіж підтверджено! Канал: {invite}",
+                    "tr": f"Ödeme onaylandı! Kanal: {invite}",
+                    "hi": f"भुगतान की पुष्टि हो गई! चैनल: {invite}"
+                }
+                error_msg = {
+                    "en": "Invite error. Contact @YourSupportHandle.",
+                    "ru": "Ошибка приглашения. Свяжитесь с @YourSupportHandle.",
+                    "uk": "Помилка запрошення. Зверніться до @YourSupportHandle.",
+                    "tr": "Davet hatası. @YourSupportHandle ile iletişime geçin.",
+                    "hi": "निमंत्रण त्रुटि। @YourSupportHandle से संपर्क करें।"
+                }
+                await bot_instances[bot_key].send_message(
+                    user_id,
+                    success_msg[language] if invite else error_msg[language]
+                )
             conn.close()
         return web.Response(status=200)
     except Exception as e:

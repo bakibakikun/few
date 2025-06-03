@@ -64,10 +64,10 @@ def get_crypto_prices():
 # Генерация QR-кода
 def generate_qr_code(data):
     try:
-        qr = qrcode.QRCode(version=1, box_size=2, border=2)
+        qr = qrcode.QRCode(version=1, box_size=10, border=4)
         qr.add_data(data)
         qr.make(fit=True)
-        img = qr.make_image(fill='black', back_color='white')
+        img = qr.make_image(fill="black", back_color="white")
         buffered = BytesIO()
         img.save(buffered, format="PNG")
         return base64.b64encode(buffered.getvalue()).decode()
@@ -75,20 +75,20 @@ def generate_qr_code(data):
         log.error(f"Ошибка генерации QR-кода: {e}")
         return None
 
-# Загрузка конфигурации ботов
+# Загрузка конфигураций ботов
 SETTINGS = fetch_bot_settings()
-log.info(f"Настройка {len(SETTINGS)} ботов"")
+log.info(f"Настройка {len(SETTINGS)} ботов")
 bot_instances = {}
 dispatchers = {}
 
 for bot_key, cfg in SETTINGS.items():
     try:
-        log.info(f"Инициализация бота {bot_key}"")
-        bot_instances[bot_key] = Bot(token=cfg["TOKEN'])
+        log.info(f"Инициализация бота {bot_key}")
+        bot_instances[bot_key] = Bot(token=cfg["TOKEN"])
         dispatchers[bot_key] = Dispatcher(bot_instances[bot_key])
-        log.info(f"Бот {bot_key} инициализирован"")
+        log.info(f"Бот {bot_key} инициализирован")
     except Exception as e:
-        log.error(f"Ошибка инициализации бота {bot_key}: {e}"")
+        log.error(f"Ошибка инициализации бота {bot_key}: {e}")
         sys.exit(1)
 
 # Инициализация базы данных
@@ -112,7 +112,7 @@ def setup_database():
         conn.close()
         log.info("База данных настроена")
     except Exception as e:
-        log.error(f"Ошибка базы данных: {e}"")
+        log.error(f"Ошибка базы данных: {e}")
         sys.exit(1)
 
 setup_database()
@@ -121,11 +121,11 @@ setup_database()
 def create_language_buttons():
     keyboard = InlineKeyboardMarkup(row_width=2)
     keyboard.add(
-        InlineKeyboardButton("English"", callback_data="lang_en""),
-        InlineKeyboardButton("Русский"), callback_data="lang_ru""),
-        InlineKeyboardButton("Українська"", callback_data="lang_uk""),
-        InlineKeyboardButton("Türkçe"", callback_data="lang_tr""),
-        InlineKeyboardButton("हिन्दी"", callback_data="lang_hi"),
+        InlineKeyboardButton("English", callback_data="lang_en"),
+        InlineKeyboardButton("Русский", callback_data="lang_ru"),
+        InlineKeyboardButton("Українська", callback_data="lang_uk"),
+        InlineKeyboardButton("Türkçe", callback_data="lang_tr"),
+        InlineKeyboardButton("हिन्दी", callback_data="lang_hi")
     )
     return keyboard
 
@@ -142,26 +142,26 @@ def create_payment_buttons(user_id, language):
         "ru": [
             ("ЮMoney", f"yoomoney_{user_id}"),
             ("TON", f"ton_{user_id}"),
-            ("BTCUSDT f"usdt_{user_id}"),
-            ("USDT TRC20", f"usdt_{user_id}"),
+            ("BTC", f"btc_{user_id}"),
+            ("USDT TRC20", f"usdt_{user_id}")
         ],
         "uk": [
             ("ЮMoney", f"yoomoney_{user_id}"),
             ("TON", f"ton_{user_id}"),
-            ("BTC", f"btc_usdt_{user_id}"),
-            ("USDT TRC20", f"usdt_usdt_{user_id}"),
+            ("BTC", f"btc_{user_id}"),
+            ("USDT TRC20", f"usdt_{user_id}")
         ],
         "tr": [
-            ("YooMoney", f"yoomoney_rt_{user_id}"),
-            ("TON", f"usdt_{user_id}"),
-            ("BTC", f"btc_usdt_{user_id}}"),
-            ("USDT TRC20", f"usdt_{user_id}"),
+            ("YooMoney", f"yoomoney_{user_id}"),
+            ("TON", f"ton_{user_id}"),
+            ("BTC", f"btc_{user_id}"),
+            ("USDT TRC20", f"usdt_{user_id}")
         ],
         "hi": [
             ("YooMoney", f"yoomoney_{user_id}"),
-            ("TON", f"ton_{i_id}"),
-            ("BTC", f"usdt_{user_id}}"),
-            ("USDT TRC20", f"usdt_i_id}"),
+            ("TON", f"ton_{user_id}"),
+            ("BTC", f"btc_{user_id}"),
+            ("USDT", f"usdt_{user_id}")
         ]
     }
     for text, callback in buttons.get(language, buttons["en"]):
@@ -176,7 +176,7 @@ def get_user_language(user_id):
         cursor.execute("SELECT language FROM user_languages WHERE user_id = %s", (user_id,))
         result = cursor.fetchone()
         conn.close()
-        return result[0] if result else "en"  # По умолчанию английский
+        return result[0] if result else "en"
     except Exception as e:
         log.error(f"Ошибка получения языка: {e}")
         return "en"
@@ -184,7 +184,7 @@ def get_user_language(user_id):
 # Сохранение языка пользователя
 def save_user_language(user_id, language):
     try:
-        conn = psyc2.connect(DB_URL)
+        conn = psycopg2.connect(DB_URL)
         cursor = conn.cursor()
         cursor.execute(
             "INSERT INTO user_languages (user_id, language) VALUES (%s, %s) "
@@ -193,11 +193,11 @@ def save_user_language(user_id, language):
         )
         conn.commit()
         conn.close()
-        log.info(f"Языка {language} сохранен для пользователя {user_id}"")
+        log.info(f"Язык {language} сохранен для пользователя {user_id}")
     except Exception as e:
-        log.error(f"Ошибка сохранения языка:: {user_id}"): {e}"")
-    
-# Обработчики команд бота
+        log.error(f"Ошибка сохранения языка для пользователя {user_id}: {e}")
+
+# Обработчики команд
 for bot_key, dp in dispatchers.items():
     @dp.message_handler(commands=["start"])
     async def initiate_language_selection(msg: types.Message, bot_key=bot_key):
@@ -263,7 +263,7 @@ for bot_key, dp in dispatchers.items():
             log.info(f"[{bot_key}] Выбран ЮMoney пользователем {user_id}")
 
             payment_id = str(uuid.uuid4())
-            price = cfg["PRICE"][language]
+            price = cfg["PRICE"]["ru"]  # ЮMoney всегда в RUB
             payment_data = {
                 "quickpay-form": "shop",
                 "paymentType": "AC",
@@ -312,16 +312,16 @@ for bot_key, dp in dispatchers.items():
     async def handle_ton_choice(cb: types.CallbackQuery, bot_key=bot_key):
         try:
             user_id = cb.data.split("_")[1]
-            chat_id = cb.message.chat_id
+            chat_id = cb.message.chat.id
             bot = bot_instances[bot_key]
             cfg = SETTINGS[bot_key]
             language = get_user_language(user_id)
             await bot.answer_callback_query(cb.id)
-            log.info(f"[{bot_key}] Выбран TON платеж пользователем {user_id}")
+            log.info(f"[{bot_key}] Выбран TON пользователем {user_id}")
 
             payment_id = str(uuid.uuid4())
             ton_price, _, _ = get_crypto_prices()
-            price = cfg["PRICE"]["ru"] if language == "ru" else cfg["PRICE"][language]  # Используем цену для крипто
+            price = cfg["PRICE"]["ru"] if language == "ru" else cfg["PRICE"][language]
             usd_amount = get_usd_from_rub(price) if language == "ru" else price
             amount_ton = round(usd_amount / ton_price, 4)
             nano_ton = int(amount_ton * 1e9)
@@ -367,13 +367,13 @@ for bot_key, dp in dispatchers.items():
             cfg = SETTINGS[bot_key]
             language = get_user_language(user_id)
             await bot.answer_callback_query(cb.id)
-            log.info(f"[{bot_key}] Выбран BTC платеж пользователем {user_id}")
+            log.info(f"[{bot_key}] Выбран BTC пользователем {user_id}")
 
             payment_id = str(uuid.uuid4())
             _, btc_price, _ = get_crypto_prices()
             price = cfg["PRICE"]["ru"] if language == "ru" else cfg["PRICE"][language]
             usd_amount = get_usd_from_rub(price) if language == "ru" else price
-            amount_btc = f"{usd_amount / btc_price:.8f}".rstrip(".")
+            amount_btc = f"{usd_amount / btc_price:.8f}".rstrip("0")
 
             conn = psycopg2.connect(DB_URL)
             cursor = conn.cursor()
@@ -389,7 +389,7 @@ for bot_key, dp in dispatchers.items():
             qr_data = f"bitcoin:{BTC_ADDRESS}?amount={amount_btc}"
             qr_base64 = generate_qr_code(qr_data)
             if qr_base64:
-                qr_bytes = base64.b64decode(qr_data)
+                qr_bytes = base64.b64decode(qr_base64)
                 await bot.send_photo(chat_id, photo=qr_bytes, caption=f"{BTC_ADDRESS}")
             else:
                 await bot.send_message(chat_id, f"{BTC_ADDRESS}")
@@ -411,7 +411,7 @@ for bot_key, dp in dispatchers.items():
     async def handle_usdt_choice(cb: types.CallbackQuery, bot_key=bot_key):
         try:
             user_id = cb.data.split("_")[1]
-            chat_id = cb.message.chat_id
+            chat_id = cb.message.chat.id
             bot = bot_instances[bot_key]
             cfg = SETTINGS[bot_key]
             language = get_user_language(user_id)
@@ -436,7 +436,7 @@ for bot_key, dp in dispatchers.items():
             log.info(f"[{bot_key}] Сохранен USDT платеж {payment_id} для пользователя {user_id}")
 
             qr_base64 = generate_qr_code(USDT_ADDRESS)
-            try:
+            if qr_base64:
                 qr_bytes = base64.b64decode(qr_base64)
                 await bot.send_photo(chat_id, photo=qr_bytes, caption=f"{USDT_ADDRESS}")
             else:
@@ -444,10 +444,10 @@ for bot_key, dp in dispatchers.items():
 
             prompt = {
                 "en": f"Pay: {amount_usdt:.2f} USDT TRC20",
-                "ru": f"Уплатите: {amount_usdt:.2f} USDT TRC20",
-                "uk": f"Сплатить: {amount_usdt:.2f} USDT TRC20",
+                "ru": f"Оплатите: {amount_usdt:.2f} USDT TRC20",
+                "uk": f"Сплатіть: {amount_usdt:.2f} USDT TRC20",
                 "tr": f"Öde: {amount_usdt:.2f} USDT TRC20",
-                "hi": f"भाग: {amount_usdt:.2f} USDT TRC20"
+                "hi": f"भुगतान करें: {amount_usdt:.2f} USDT TRC20"
             }
             await bot.send_message(chat_id, prompt[language])
             log.info(f"[{bot_key}] Отправлен USDT адрес и сумма пользователю {user_id}")
@@ -486,7 +486,7 @@ async def generate_channel_invite(bot_key, user_id):
     try:
         cfg = SETTINGS[bot_key]
         bot = bot_instances[bot_key]
-        language = get_user_language(user_id]
+        language = get_user_language(user_id)
         bot_member = await bot.get_chat_member(chat_id=cfg["PRIVATE_CHANNEL_ID"], user_id=(await bot.get_me()).id)
         if not bot_member.can_invite_users:
             log.error(f"[{bot_key}] Нет прав на приглашения")
@@ -496,17 +496,16 @@ async def generate_channel_invite(bot_key, user_id):
                 invite = await bot.create_chat_invite_link(
                     chat_id=cfg["PRIVATE_CHANNEL_ID"], member_limit=1, name=f"user_{user_id}"
                 )
-                log.info(f"[{bot_key}] Приглашение для пользователя {user_id}: {invite.invite_link}")
+                log.info(f"[{bot_key}] Приглашение для {user_id}: {invite.invite_link}")
                 return invite.invite_link
-            except Exception as e:
-                log.error(f"Ошибка создания invite: {e}")
+            except:
                 await asyncio.sleep(1)
         return None
     except Exception as e:
-        log.error(f"Ошибка приглашения: {e}")
+        log.error(f"[{bot_key}] Ошибка приглашения: {e}")
         return None
 
-# Поиск бота по платежу
+# Поиск бота
 def locate_bot_by_payment(payment_id):
     try:
         for bot_key in SETTINGS:
@@ -587,24 +586,22 @@ async def store_payment(req, bot_key):
         conn.close()
         return web.Response(status=200)
     except Exception as e:
-        log.error(f"[{bot_key}] Ошибка сохранения платежа: {e}")
+        log.error(f"[{bot_key}] Ошибка сохранения: {e}")
         return web.Response(status=500)
 
 # Проверка состояния
 async def check_status(req):
-    log.info(f"[{ENV}] Проверка статуса")
     return web.Response(status=200, text=f"Активно с {len(SETTINGS)} ботами")
 
-# Обработчик вебхука бота
+# Обработчик бота
 async def process_bot_webhook(req, bot_key):
     try:
         if bot_key not in dispatchers:
-            log.error(f"[{bot_key}] Бот не найден")
             return web.Response(status=400)
         bot = bot_instances[bot_key]
         dp = dispatchers[bot_key]
         Bot.set_current(bot)
-        dp.set_current()
+        dp.set_current(dp)
         update = await req.json()
         update_obj = types.Update(**update)
         asyncio.create_task(dp.process_update(update_obj))
@@ -621,9 +618,9 @@ async def configure_webhooks():
             hook_url = f"{HOST_URL}{WEBHOOK_BASE}/{bot_key}"
             await bot.delete_webhook(drop_pending_updates=True)
             await bot.set_webhook(hook_url)
-            log.info(f"[{bot_key}] Вебхук установлен: {hook_url}")
+            log.info(f"[{bot_key}] Вебхук: {hook_url}")
         except Exception as e:
-            log.error(f"[{bot_key}] Ошибка установки вебхука: {e}")
+            log.error(f"[{bot_key}] Ошибка вебхука: {e}")
             sys.exit(1)
 
 # Запуск сервера
@@ -637,4 +634,15 @@ async def launch_server():
     for bot_key in SETTINGS:
         app.router.add_post(f"{YOOMONEY_HOOK}/{bot_key}", lambda req, bot_key=bot_key: process_yoomoney_webhook(req))
         app.router.add_post(f"{PAYMENT_STORE}/{bot_key}", lambda req, bot_key=bot_key: store_payment(req, bot_key))
-        app.router.add_post(f"{WEBHOOK_BASE}/{bot_key}", lambda req, bot_key=bot_key: process_bot_webhook(req, bot_key
+        app.router.add_post(f"{WEBHOOK_BASE}/{bot_key}", lambda req, bot_key=bot_key: process_bot_webhook(req, bot_key))
+    port = int(os.getenv("PORT", 8000))
+    runner = web.AppRunner(app)
+    await runner.setup()
+    site = web.TCPSite(runner, "0.0.0.0", port)
+    await site.start()
+    log.info(f"Сервер на порту {port}")
+    while True:
+        await asyncio.sleep(3600)
+
+if __name__ == "__main__":
+    asyncio.run(launch_server())

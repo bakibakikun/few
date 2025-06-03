@@ -1,5 +1,3 @@
-import yaml
-
 def fetch_bot_settings():
     return {
         "bot1": {
@@ -97,9 +95,9 @@ def fetch_bot_settings():
             "DESCRIPTION": {
                 "en": "Plan: Standard\nPrice: {price} USD\nDuration: 1 month\n\nAccess to private 18+ channel",
                 "ru": "Тариф: Стандарт\nСтоимость: {price} RUB\nСрок действия: 1 месяц\n\nДоступ к закрытому каналу 18+",
-                "uk": "Тариф: Стандарт\nВартість: {price} USD\nТермін дії: 1 місяць\n\nДоступ до закопаного",
+                "uk": "Тариф: Стандарт\nВартість: {price} USD\nТермін дії: 1 місяць\n\nДоступ до закритого каналу 18+",
                 "tr": "Plan: Standart\nFiyat: {price} USD\nSüre: 1 ay\n\nÖzel 18+ kanala erişim",
-                "hi": "प्लान: स्टैंडर्ड\nकीमत: {price} USD\nअवधि: 1 महीना\n\nनिजी 18+ चैनल तक पहुंच"
+                "hi": "प्लान: स्टैंड\nकीमत: {price} USD\nअवधि: 1 महीना\n\nनिजी 18+ चैनल तक पहुंच"
             }
         },
         "bot6": {

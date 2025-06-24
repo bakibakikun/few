@@ -34,6 +34,7 @@ HOST_URL = os.getenv("HOST_URL", "https://web-production-5c4ed.up.railway.app")
 TON_ADDRESS = "UQBLNUOpN5B0q_M2xukAB5MsfSCUsdE6BkXHO6ndogQDi5_6"
 BTC_ADDRESS = "bc1q5xq9m473r8nnkx799ztcrwfqs0555fs3ulw9vr"
 USDT_ADDRESS = "TQzs3V6QHdXb3CtNPYK9iPWuvvrYCPt6vE"
+PAYPAL_EMAIL = "here@gmail.com"
 
 # Окружение
 ENV = "railway"
@@ -137,31 +138,36 @@ def create_payment_buttons(user_id, language):
             ("YooMoney", f"yoomoney_{user_id}"),
             ("TON", f"ton_{user_id}"),
             ("BTC", f"btc_{user_id}"),
-            ("USDT TRC20", f"usdt_{user_id}")
+            ("USDT TRC20", f"usdt_{user_id}"),
+            ("PayPal", f"paypal_{user_id}")
         ],
         "ru": [
             ("ЮMoney", f"yoomoney_{user_id}"),
             ("TON", f"ton_{user_id}"),
             ("BTC", f"btc_{user_id}"),
-            ("USDT TRC20", f"usdt_{user_id}")
+            ("USDT TRC20", f"usdt_{user_id}"),
+            ("PayPal", f"paypal_{user_id}")
         ],
         "uk": [
             ("ЮMoney", f"yoomoney_{user_id}"),
             ("TON", f"ton_{user_id}"),
             ("BTC", f"btc_{user_id}"),
-            ("USDT TRC20", f"usdt_{user_id}")
+            ("USDT TRC20", f"usdt_{user_id}"),
+            ("PayPal", f"paypal_{user_id}")
         ],
         "tr": [
             ("YooMoney", f"yoomoney_{user_id}"),
             ("TON", f"ton_{user_id}"),
             ("BTC", f"btc_{user_id}"),
-            ("USDT TRC20", f"usdt_{user_id}")
+            ("USDT TRC20", f"usdt_{user_id}"),
+            ("PayPal", f"paypal_{user_id}")
         ],
         "hi": [
             ("YooMoney", f"yoomoney_{user_id}"),
             ("TON", f"ton_{user_id}"),
             ("BTC", f"btc_{user_id}"),
-            ("USDT", f"usdt_{user_id}")
+            ("USDT", f"usdt_{user_id}"),
+            ("PayPal", f"paypal_{user_id}")
         ]
     }
     for text, callback in buttons.get(language, buttons["en"]):
@@ -453,6 +459,45 @@ for bot_key, dp in dispatchers.items():
             log.info(f"[{bot_key}] Отправлен USDT адрес и сумма пользователю {user_id}")
         except Exception as e:
             log.error(f"[{bot_key}] Ошибка USDT: {e}")
+            await bot_instances[bot_key].send_message(chat_id, "Payment error. Try again.")
+
+    @dp.callback_query_handler(lambda c: c.data.startswith("paypal_"))
+    async def handle_paypal_choice(cb: types.CallbackQuery, bot_key=bot_key):
+        try:
+            user_id = cb.data.split("_")[1]
+            chat_id = cb.message.chat.id
+            bot = bot_instances[bot_key]
+            cfg = SETTINGS[bot_key]
+            language = get_user_language(user_id)
+            await bot.answer_callback_query(cb.id)
+            log.info(f"[{bot_key}] Выбран PayPal пользователем {user_id}")
+
+            payment_id = str(uuid.uuid4())
+            price = cfg["PRICE"]["ru"] if language == "ru" else cfg["PRICE"][language]
+            currency = "RUB" if language == "ru" else "USD"
+
+            conn = psycopg2.connect(DB_URL)
+            cursor = conn.cursor()
+            cursor.execute(
+                f"INSERT INTO payments_{bot_key} (label, user_id, status, payment_type) "
+                "VALUES (%s, %s, %s, %s)",
+                (payment_id, user_id, "pending", "paypal")
+            )
+            conn.commit()
+            conn.close()
+            log.info(f"[{bot_key}] Сохранен PayPal платеж {payment_id} для пользователя {user_id}")
+
+            prompt = {
+                "en": f"Please send {price} {currency} via PayPal to {PAYPAL_EMAIL}. Include your Telegram ID ({user_id}) in the payment note.",
+                "ru": f"Пожалуйста, отправьте {price} {currency} через PayPal на {PAYPAL_EMAIL}. Укажите ваш Telegram ID ({user_id}) в заметке к платежу.",
+                "uk": f"Будь ласка, надішліть {price} {currency} через PayPal на {PAYPAL_EMAIL}. Вкажіть ваш Telegram ID ({user_id}) у примітці до платежу.",
+                "tr": f"Lütfen {price} {currency} tutarını PayPal üzerinden {PAYPAL_EMAIL} adresine gönderin. Ödeme notuna Telegram ID'nizi ({user_id}) ekleyin.",
+                "hi": f"कृपया {price} {currency} को PayPal के माध्यम से {PAYPAL_EMAIL} पर भेजें। भुगतान नोट में अपना Telegram ID ({user_id}) शामिल करें।"
+            }
+            await bot.send_message(chat_id, prompt[language])
+            log.info(f"[{bot_key}] Отправлены инструкции PayPal пользователю {user_id}")
+        except Exception as e:
+            log.error(f"[{bot_key}] Ошибка PayPal: {e}")
             await bot_instances[bot_key].send_message(chat_id, "Payment error. Try again.")
 
 # Временный обработчик корневого пути

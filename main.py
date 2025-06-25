@@ -34,7 +34,7 @@ HOST_URL = os.getenv("HOST_URL", "https://web-production-5c4ed.up.railway.app")
 TON_ADDRESS = "UQBLNUOpN5B0q_M2xukAB5MsfSCUsdE6BkXHO6ndogQDi5_6"
 BTC_ADDRESS = "bc1q5xq9m473r8nnkx799ztcrwfqs0555fs3ulw9vr"
 USDT_ADDRESS = "TQzs3V6QHdXb3CtNPYK9iPWuvvrYCPt6vE"
-PAYPAL_EMAIL = "here@gmail.com"
+PAYPAL_EMAIL = "nemillingsuppay@gmail.com"
 
 # Окружение
 ENV = "railway"

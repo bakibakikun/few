@@ -19,7 +19,7 @@ from config import fetch_bot_settings
 logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s [%(levelname)s] %(message)s",
-    stream=sys.stdout
+    stream=sys.stdout,
 )
 log = logging.getLogger(__name__)
 log.info("Запуск бота подписки")
@@ -34,7 +34,7 @@ HOST_URL = os.getenv("HOST_URL", "https://web-production-5c4ed.up.railway.app")
 TON_ADDRESS = "UQBLNUOpN5B0q_M2xukAB5MsfSCUsdE6BkXHO6ndogQDi5_6"
 BTC_ADDRESS = "bc1q5xq9m473r8nnkx799ztcrwfqs0555fs3ulw9vr"
 USDT_ADDRESS = "TQzs3V6QHdXb3CtNPYK9iPWuvvrYCPt6vE"
-PAYPAL_EMAIL = "nemillingsuppay@gmail.com"
+PAYPAL_EMAIL = "here@gmail.com"
 
 # Окружение
 ENV = "railway"
@@ -52,12 +52,17 @@ def get_usd_from_rub(rub_amount):
 # Получение курса криптовалют
 def get_crypto_prices():
     try:
-        response = requests.get("https://api.coingecko.com/api/v3/simple/price?ids=the-open-network,bitcoin,tether&vs_currencies=usd")
+        response = requests.get(
+            "https://api.coingecko.com/api/v3/simple/price?ids=the-open-network,bitcoin,tether&vs_currencies=usd",
+            timeout=5
+        )
+        response.raise_for_status()
         data = response.json()
-        ton_price = data["the-open-network"]["usd"]
-        btc_price = data["bitcoin"]["usd"]
-        usdt_price = data["tether"]["usd"]
-        return ton_price, btc_price, usdt_price
+        return (
+            data["the-open-network"]["usd"],
+            data["bitcoin"]["usd"],
+            data["tether"]["usd"]
+        )
     except Exception as e:
         log.error(f"Ошибка получения курса: {e}")
         return 5.0, 60000.0, 1.0
@@ -130,17 +135,10 @@ def create_language_buttons():
     )
     return keyboard
 
-# Кнопки оплаты
+# Кнопки оплаты (ЮMoney только для ru)
 def create_payment_buttons(user_id, language):
     keyboard = InlineKeyboardMarkup()
     buttons = {
-        "en": [
-            ("YooMoney", f"yoomoney_{user_id}"),
-            ("TON", f"ton_{user_id}"),
-            ("BTC", f"btc_{user_id}"),
-            ("USDT TRC20", f"usdt_{user_id}"),
-            ("PayPal", f"paypal_{user_id}")
-        ],
         "ru": [
             ("ЮMoney", f"yoomoney_{user_id}"),
             ("TON", f"ton_{user_id}"),
@@ -148,22 +146,25 @@ def create_payment_buttons(user_id, language):
             ("USDT TRC20", f"usdt_{user_id}"),
             ("PayPal", f"paypal_{user_id}")
         ],
+        "en": [
+            ("TON", f"ton_{user_id}"),
+            ("BTC", f"btc_{user_id}"),
+            ("USDT TRC20", f"usdt_{user_id}"),
+            ("PayPal", f"paypal_{user_id}")
+        ],
         "uk": [
-            ("ЮMoney", f"yoomoney_{user_id}"),
             ("TON", f"ton_{user_id}"),
             ("BTC", f"btc_{user_id}"),
             ("USDT TRC20", f"usdt_{user_id}"),
             ("PayPal", f"paypal_{user_id}")
         ],
         "tr": [
-            ("YooMoney", f"yoomoney_{user_id}"),
             ("TON", f"ton_{user_id}"),
             ("BTC", f"btc_{user_id}"),
             ("USDT TRC20", f"usdt_{user_id}"),
             ("PayPal", f"paypal_{user_id}")
         ],
         "hi": [
-            ("YooMoney", f"yoomoney_{user_id}"),
             ("TON", f"ton_{user_id}"),
             ("BTC", f"btc_{user_id}"),
             ("USDT", f"usdt_{user_id}"),
@@ -294,21 +295,13 @@ for bot_key, dp in dispatchers.items():
 
             keyboard = InlineKeyboardMarkup()
             button_text = {
-                "en": "Pay now",
-                "ru": "Оплатить сейчас",
-                "uk": "Сплатити зараз",
-                "tr": "Şimdi öde",
-                "hi": "अब भुगतान करें"
+                "ru": "Оплатить сейчас"
             }
-            keyboard.add(InlineKeyboardButton(button_text[language], url=payment_link))
+            keyboard.add(InlineKeyboardButton(button_text["ru"], url=payment_link))
             prompt = {
-                "en": "Proceed to payment via YooMoney:",
-                "ru": "Перейдите для оплаты через ЮMoney:",
-                "uk": "Перейдіть до оплати через ЮMoney:",
-                "tr": "YooMoney ile ödemeye geçin:",
-                "hi": "YooMoney के माध्यम से भुगतान के लिए आगे बढ़ें:"
+                "ru": "Перейдите для оплаты через ЮMoney:"
             }
-            await bot.send_message(chat_id, prompt[language], reply_markup=keyboard)
+            await bot.send_message(chat_id, prompt["ru"], reply_markup=keyboard)
             log.info(f"[{bot_key}] Ссылка ЮMoney отправлена пользователю {user_id}")
         except Exception as e:
             log.error(f"[{bot_key}] Ошибка ЮMoney: {e}")
@@ -629,19 +622,22 @@ async def store_payment(req, bot_key):
         )
         conn.commit()
         conn.close()
+        log.info(f"[{bot_key}] Платеж {payment_id} сохранен для пользователя {user_id} (тип: {payment_type})")
         return web.Response(status=200)
     except Exception as e:
-        log.error(f"[{bot_key}] Ошибка сохранения: {e}")
+        log.error(f"[{bot_key}] Ошибка сохранения платежа: {e}")
         return web.Response(status=500)
 
 # Проверка состояния
 async def check_status(req):
+    log.info(f"[{ENV}] Запрос состояния сервера")
     return web.Response(status=200, text=f"Активно с {len(SETTINGS)} ботами")
 
 # Обработчик бота
 async def process_bot_webhook(req, bot_key):
     try:
         if bot_key not in dispatchers:
+            log.error(f"[{bot_key}] Бот не найден в dispatchers")
             return web.Response(status=400)
         bot = bot_instances[bot_key]
         dp = dispatchers[bot_key]
@@ -650,6 +646,7 @@ async def process_bot_webhook(req, bot_key):
         update = await req.json()
         update_obj = types.Update(**update)
         asyncio.create_task(dp.process_update(update_obj))
+        log.info(f"[{bot_key}] Обработан вебхук")
         return web.Response(status=200)
     except Exception as e:
         log.error(f"[{bot_key}] Ошибка вебхука: {e}")
@@ -663,31 +660,35 @@ async def configure_webhooks():
             hook_url = f"{HOST_URL}{WEBHOOK_BASE}/{bot_key}"
             await bot.delete_webhook(drop_pending_updates=True)
             await bot.set_webhook(hook_url)
-            log.info(f"[{bot_key}] Вебхук: {hook_url}")
+            log.info(f"[{bot_key}] Вебхук успешно установлен: {hook_url}")
         except Exception as e:
-            log.error(f"[{bot_key}] Ошибка вебхука: {e}")
-            sys.exit(1)
+            log.error(f"[{bot_key}] Ошибка установки вебхука: {e}")
 
 # Запуск сервера
 async def launch_server():
-    await configure_webhooks()
-    app = web.Application()
-    app.router.add_post("/", handle_root)
-    app.router.add_post(YOOMONEY_HOOK, process_yoomoney_webhook)
-    app.router.add_get(HEALTH_CHECK, check_status)
-    app.router.add_post(HEALTH_CHECK, check_status)
-    for bot_key in SETTINGS:
-        app.router.add_post(f"{YOOMONEY_HOOK}/{bot_key}", lambda req, bot_key=bot_key: process_yoomoney_webhook(req))
-        app.router.add_post(f"{PAYMENT_STORE}/{bot_key}", lambda req, bot_key=bot_key: store_payment(req, bot_key))
-        app.router.add_post(f"{WEBHOOK_BASE}/{bot_key}", lambda req, bot_key=bot_key: process_bot_webhook(req, bot_key))
-    port = int(os.getenv("PORT", 8000))
-    runner = web.AppRunner(app)
-    await runner.setup()
-    site = web.TCPSite(runner, "0.0.0.0", port)
-    await site.start()
-    log.info(f"Сервер на порту {port}")
-    while True:
-        await asyncio.sleep(3600)
+    try:
+        await configure_webhooks()
+        app = web.Application()
+        app.router.add_post("/", handle_root)
+        app.router.add_post(YOOMONEY_HOOK, process_yoomoney_webhook)
+        app.router.add_get(HEALTH_CHECK, check_status)
+        app.router.add_post(HEALTH_CHECK, check_status)
+        for bot_key in SETTINGS:
+            app.router.add_post(f"{YOOMONEY_HOOK}/{bot_key}", lambda req, bot_key=bot_key: process_yoomoney_webhook(req))
+            app.router.add_post(f"{PAYMENT_STORE}/{bot_key}", lambda req, bot_key=bot_key: store_payment(req, bot_key))
+            app.router.add_post(f"{WEBHOOK_BASE}/{bot_key}", lambda req, bot_key=bot_key: process_bot_webhook(req, bot_key))
+        port = int(os.getenv("PORT", 8000))
+        runner = web.AppRunner(app)
+        await runner.setup()
+        site = web.TCPSite(runner, "0.0.0.0", port)
+        await site.start()
+        log.info(f"Сервер успешно запущен на порту {port} с {len(SETTINGS)} ботами")
+        while True:
+            await asyncio.sleep(3600)
+    except Exception as e:
+        log.error(f"Ошибка запуска сервера: {e}")
+        sys.exit(1)
 
+# Запуск приложения
 if __name__ == "__main__":
     asyncio.run(launch_server())

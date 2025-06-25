@@ -280,4 +280,204 @@ def fetch_bot_settings():
                 "hi": "प्लान: स्टैंडर्ड\nकीमत: {price} USD\nअवधि: 1 महीना\n\nनिजी 18+ चैनल तक पहुंच"
             }
         },
+        "bot15": {
+            "TOKEN": "7374584059:AAF34FW4ndPOJSgblIiVJ3oY5w8o_hdQhsA",
+            "YOOMONEY_WALLET": "4100118178122985",
+            "NOTIFICATION_SECRET": "CoqQlgE3E5cTzyAKY1LSiLU1",
+            "PRIVATE_CHANNEL_ID": -1002854826293,
+            "PRICE": {
+                "ru": 600.00,
+                "en": 6.00,
+                "uk": 6.00,
+                "tr": 6.00,
+                "hi": 6.00
+            },
+            "DESCRIPTION": {
+                "en": "Plan: Standard\nPrice: {price} USD\nDuration: 1 month\n\nAccess to private 18+ channel",
+                "ru": "Тариф: Стандарт\nСтоимость: {price} RUB\nСрок действия: 1 месяц\n\nДоступ к закрытому каналу 18+",
+                "uk": "Тариф: Стандарт\nВартість: {price} USD\nТермін дії: 1 місяць\n\nДоступ до закритого каналу 18+",
+                "tr": "Plan: Standart\nFiyat: {price} USD\nSüre: 1 ay\n\nÖzel 18+ kanala erişim",
+                "hi": "प्लान: स्टैंडर्ड\nकीमत: {price} USD\nअवधि: 1 महीना\n\nनिजी 18+ चैनल तक पहुंच"
+            }
+        },
+        "bot16": {
+            "TOKEN": "7657205678:AAEnvAgXr-ATlBFkbfWAGh3bAy2X7GzBDfE",
+            "YOOMONEY_WALLET": "4100118178122985",
+            "NOTIFICATION_SECRET": "CoqQlgE3E5cTzyAKY1LSiLU1",
+            "PRIVATE_CHANNEL_ID": -1002750522822,
+            "PRICE": {
+                "ru": 600.00,
+                "en": 6.00,
+                "uk": 6.00,
+                "tr": 6.00,
+                "hi": 6.00
+            },
+            "DESCRIPTION": {
+                "en": "Plan: Standard\nPrice: {price} USD\nDuration: 1 month\n\nAccess to private 18+ channel",
+                "ru": "Тариф: Стандарт\nСтоимость: {price} RUB\nСрок действия: 1 месяц\n\nДоступ к закрытому каналу 18+",
+                "uk": "Тариф: Стандарт\nВартість: {price} USD\nТермін дії: 1 місяць\n\nДоступ до закритого каналу 18+",
+                "tr": "Plan: Standart\nFiyat: {price} USD\nSüre: 1 ay\n\nÖzel 18+ kanala erişim",
+                "hi": "प्लान: स्टैंडर्ड\nकीमत: {price} USD\nअवधि: 1 महीना\n\nनिजी 18+ चैनल तक पहुंच"
+            }
+        },
+        "bot17": {
+            "TOKEN": "8142220679:AAHQxMgyY3xyYVw2oCj7Ud_m47uVNqcuBDE",
+            "YOOMONEY_WALLET": "4100118178122985",
+            "NOTIFICATION_SECRET": "CoqQlgE3E5cTzyAKY1LSiLU1",
+            "PRIVATE_CHANNEL_ID": -1002752065569,
+            "PRICE": {
+                "ru": 600.00,
+                "en": 6.00,
+                "uk": 6.00,
+                "tr": 6.00,
+                "hi": 6.00
+            },
+            "DESCRIPTION": {
+                "en": "Plan: Standard\nPrice: {price} USD\nDuration: 1 month\n\nAccess to private 18+ channel",
+                "ru": "Тариф: Стандарт\nСтоимость: {price} RUB\nСрок действия: 1 месяц\n\nДоступ к закрытому каналу 18+",
+                "uk": "Тариф: Стандарт\nВартість: {price} USD\nТермін дії: 1 місяць\n\nДоступ до закритого каналу 18+",
+                "tr": "Plan: Standart\nFiyat: {price} USD\nSüre: 1 ay\n\nÖzel 18+ kanala erişim",
+                "hi": "प्लान: स्टैंडर्ड\nकीमत: {price} USD\nअवधि: 1 महीना\n\nनिजी 18+ चैनल तक पहुंच"
+            }
+        },
+        "bot18": {
+            "TOKEN": "7500294585:AAGRJmFnjDZj0MI_TokYEX-z5Gw40h_6hA0",
+            "YOOMONEY_WALLET": "4100118178122985",
+            "NOTIFICATION_SECRET": "CoqQlgE3E5cTzyAKY1LSiLU1",
+            "PRIVATE_CHANNEL_ID": -1002667650385,
+            "PRICE": {
+                "ru": 600.00,
+                "en": 6.00,
+                "uk": 6.00,
+                "tr": 6.00,
+                "hi": 6.00
+            },
+            "DESCRIPTION": {
+                "en": "Plan: Standard\nPrice: {price} USD\nDuration: 1 month\n\nAccess to private 18+ channel",
+                "ru": "Тариф: Стандарт\nСтоимость: {price} RUB\nСрок действия: 1 месяц\n\nДоступ к закрытому каналу 18+",
+                "uk": "Тариф: Стандарт\nВартість: {price} USD\nТермін дії: 1 місяць\n\nДоступ до закритого каналу 18+",
+                "tr": "Plan: Standart\nFiyat: {price} USD\nSüre: 1 ay\n\nÖzel 18+ kanala erişim",
+                "hi": "प्लान: स्टैंडर्ड\nकीमत: {price} USD\nअवधि: 1 महीना\n\nनिजी 18+ चैनल तक पहुंच"
+            }
+        },
+        "bot19": {
+            "TOKEN": "8160739105:AAHNQYj7D643-TclWtY07_qJX8gHbMPde-8",
+            "YOOMONEY_WALLET": "4100118178122985",
+            "NOTIFICATION_SECRET": "CoqQlgE3E5cTzyAKY1LSiLU1",
+            "PRIVATE_CHANNEL_ID": -1002729733695,
+            "PRICE": {
+                "ru": 600.00,
+                "en": 6.00,
+                "uk": 6.00,
+                "tr": 6.00,
+                "hi": 6.00
+            },
+            "DESCRIPTION": {
+                "en": "Plan: Standard\nPrice: {price} USD\nDuration: 1 month\n\nAccess to private 18+ channel",
+                "ru": "Тариф: Стандарт\nСтоимость: {price} RUB\nСрок действия: 1 месяц\n\nДоступ к закрытому каналу 18+",
+                "uk": "Тариф: Стандарт\nВартість: {price} USD\nТермін дії: 1 місяць\n\nДоступ до закритого каналу 18+",
+                "tr": "Plan: Standart\nFiyat: {price} USD\nSüre: 1 ay\n\nÖzel 18+ kanala erişim",
+                "hi": "प्लान: स्टैंडर्ड\nकीमत: {price} USD\nअवधि: 1 महीना\n\nनिजी 18+ चैनल तक पहुंच"
+            }
+        },
+        "bot20": {
+            "TOKEN": "7731184991:AAGdZ97deBS_5xTdUMO3Kw8xpphkJ2M1Uqk",
+            "YOOMONEY_WALLET": "4100118178122985",
+            "NOTIFICATION_SECRET": "CoqQlgE3E5cTzyAKY1LSiLU1",
+            "PRIVATE_CHANNEL_ID": -1002794054378,
+            "PRICE": {
+                "ru": 600.00,
+                "en": 6.00,
+                "uk": 6.00,
+                "tr": 6.00,
+                "hi": 6.00
+            },
+            "DESCRIPTION": {
+                "en": "Plan: Standard\nPrice: {price} USD\nDuration: 1 month\n\nAccess to private 18+ channel",
+                "ru": "Тариф: Стандарт\nСтоимость: {price} RUB\nСрок действия: 1 месяц\n\nДоступ к закрытому каналу 18+",
+                "uk": "Тариф: Стандарт\nВартість: {price} USD\nТермін дії: 1 місяць\n\nДоступ до закритого каналу 18+",
+                "tr": "Plan: Standart\nFiyat: {price} USD\nSüre: 1 ay\n\nÖzel 18+ kanala erişim",
+                "hi": "प्लान: स्टैंडर्ड\nकीमत: {price} USD\nअवधि: 1 महीना\n\nनिजी 18+ चैनल तक पहुंच"
+            }
+        },
+        "bot21": {
+            "TOKEN": "7918539989:AAGWxEzcOBHK5SkdDf9VPdtqKYF9Kt_m5Cw",
+            "YOOMONEY_WALLET": "4100118178122985",
+            "NOTIFICATION_SECRET": "CoqQlgE3E5cTzyAKY1LSiLU1",
+            "PRIVATE_CHANNEL_ID": -1002894566340,
+            "PRICE": {
+                "ru": 600.00,
+                "en": 6.00,
+                "uk": 6.00,
+                "tr": 6.00,
+                "hi": 6.00
+            },
+            "DESCRIPTION": {
+                "en": "Plan: Standard\nPrice: {price} USD\nDuration: 1 month\n\nAccess to private 18+ channel",
+                "ru": "Тариф: Стандарт\nСтоимость: {price} RUB\nСрок действия: 1 месяц\n\nДоступ к закрытому каналу 18+",
+                "uk": "Тариф: Стандарт\nВартість: {price} USD\nТермін дії: 1 місяць\n\nДоступ до закритого каналу 18+",
+                "tr": "Plan: Standart\nFiyat: {price} USD\nSüre: 1 ay\n\nÖzel 18+ kanala erişim",
+                "hi": "प्लान: स्टैंडर्ड\nकीमत: {price} USD\nअवधि: 1 महीना\n\nनिजी 18+ चैनल तक पहुंच"
+            }
+        },
+        "bot22": {
+            "TOKEN": "7981023591:AAE1ihXdexb8NwPwQUZMS0rxmMz0RxbKXkA",
+            "YOOMONEY_WALLET": "4100118178122985",
+            "NOTIFICATION_SECRET": "CoqQlgE3E5cTzyAKY1LSiLU1",
+            "PRIVATE_CHANNEL_ID": -1002705712143,
+            "PRICE": {
+                "ru": 600.00,
+                "en": 6.00,
+                "uk": 6.00,
+                "tr": 6.00,
+                "hi": 6.00
+            },
+            "DESCRIPTION": {
+                "en": "Plan: Standard\nPrice: {price} USD\nDuration: 1 month\n\nAccess to private 18+ channel",
+                "ru": "Тариф: Стандарт\nСтоимость: {price} RUB\nСрок действия: 1 месяц\n\nДоступ к закрытому каналу 18+",
+                "uk": "Тариф: Стандарт\nВартість: {price} USD\nТермін дії: 1 місяць\n\nДоступ до закритого каналу 18+",
+                "tr": "Plan: Standart\nFiyat: {price} USD\nSüre: 1 ay\n\nÖzel 18+ kanala erişim",
+                "hi": "प्लान: स्टैंडर्ड\nकीमत: {price} USD\nअवधि: 1 महीना\n\nनिजी 18+ चैनल तक पहुंच"
+            }
+        },
+        "bot23": {
+            "TOKEN": "7858411251:AAECVGf7G3gb-20sY7E4rPeWtENB8VCugxY",
+            "YOOMONEY_WALLET": "4100118178122985",
+            "NOTIFICATION_SECRET": "CoqQlgE3E5cTzyAKY1LSiLU1",
+            "PRIVATE_CHANNEL_ID": -1002858039096,
+            "PRICE": {
+                "ru": 600.00,
+                "en": 6.00,
+                "uk": 6.00,
+                "tr": 6.00,
+                "hi": 6.00
+            },
+            "DESCRIPTION": {
+                "en": "Plan: Standard\nPrice: {price} USD\nDuration: 1 month\n\nAccess to private 18+ channel",
+                "ru": "Тариф: Стандарт\nСтоимость: {price} RUB\nСрок действия: 1 месяц\n\nДоступ к закрытому каналу 18+",
+                "uk": "Тариф: Стандарт\nВартість: {price} USD\nТермін дії: 1 місяць\n\nДоступ до закритого каналу 18+",
+                "tr": "Plan: Standart\nFiyat: {price} USD\nSüre: 1 ay\n\nÖzel 18+ kanala erişim",
+                "hi": "प्लान: स्टैंडर्ड\nकीमत: {price} USD\nअवधि: 1 महीना\n\nनिजी 18+ चैनल तक पहुंच"
+            }
+        },
+        "bot24": {
+            "TOKEN": "7898096458:AAFBmXLXzdR9t3EfnwLn7r7cXf9phmqf3kY",
+            "YOOMONEY_WALLET": "4100118178122985",
+            "NOTIFICATION_SECRET": "CoqQlgE3E5cTzyAKY1LSiLU1",
+            "PRIVATE_CHANNEL_ID": -1002869107541,
+            "PRICE": {
+                "ru": 600.00,
+                "en": 6.00,
+                "uk": 6.00,
+                "tr": 6.00,
+                "hi": 6.00
+            },
+            "DESCRIPTION": {
+                "en": "Plan: Standard\nPrice: {price} USD\nDuration: 1 month\n\nAccess to private 18+ channel",
+                "ru": "Тариф: Стандарт\nСтоимость: {price} RUB\nСрок действия: 1 месяц\n\nДоступ к закрытому каналу 18+",
+                "uk": "Тариф: Стандарт\nВартість: {price} USD\nТермін дії: 1 місяць\n\nДоступ до закритого каналу 18+",
+                "tr": "Plan: Standart\nFiyat: {price} USD\nSüre: 1 ay\n\nÖzel 18+ kanala erişim",
+                "hi": "प्लान: स्टैंडर्ड\nकीमत: {price} USD\nअवधि: 1 महीना\n\nनिजी 18+ चैनल तक पहुंच"
+            }
+        },
     }

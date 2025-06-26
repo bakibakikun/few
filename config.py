@@ -26,11 +26,11 @@ def fetch_bot_settings():
             "NOTIFICATION_SECRET": "CoqQlgE3E5cTzyAKY1LSiLU1",
             "PRIVATE_CHANNEL_ID": -1002609563244,
             "PRICE": {
-                "ru": 3.00,
-                "en": 0.03,
-                "uk": 0.03,
-                "tr": 0.03,
-                "hi": 0.03
+                "ru": 550.00,
+                "en": 5.50,
+                "uk": 5.50,
+                "tr": 5.50,
+                "hi": 5.50
             },
             "DESCRIPTION": {
                 "en": "Plan: Standard\nPrice: {price} USD\nDuration: 1 month\n\nAccess to private 18+ channel",
